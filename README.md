@@ -1,4 +1,4 @@
-# Quest Board — Node.js
+# Adventures Compendium — Node.js
 
 A daily fantasy quest board powered by Gemini AI. Converted from Python/Flask to Node.js/Express.
 

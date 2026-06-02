@@ -1,0 +1,60 @@
+<div id="board-overlay"></div>
+
+<div id="wizard-alert"{{#if api_failed}} class="show"{{/if}}>
+  <span>😴</span>
+  <div>
+    <strong style="color: #d4af37; display: block;">Notice from the Spire:</strong>
+    The Wizard has gone to sleep. Using archived scrolls for today's bounties.
+  </div>
+</div>
+
+<div class="board">
+  <div class="scrawl-note">{{comedic_note}}</div>
+  <h1>ADVENTURERS WANTED</h1>
+
+  <div class="timer-container">
+    <div class="hourglass-label">{{hoursLeftText}}</div>
+    <div class="timer-bar-outer">
+      <div class="timer-bar-inner" style="width: {{timerBarWidth}}%;"></div>
+    </div>
+  </div>
+
+  {{#each quests}}
+  <div class="quest-wrapper" onclick="focusQuest(this)">
+    <div class="note">
+      <div class="note-header">
+        <span class="stars">{{this.level}}</span>
+        <div class="wanted-text">{{this.type}} WANTED</div>
+      </div>
+      <div class="note-text">
+        {{this.text}}
+        <div class="signature">{{this.signature}}</div>
+      </div>
+    </div>
+    <div class="gold-plate">{{this.gold}}</div>
+  </div>
+  {{/each}}
+</div>
+
+<footer style="margin-top: 40px; text-align: center; color: #8b6f47; font-size: 0.9em; opacity: 0.8;">
+  <a href="/" style="color: #d4af37; text-decoration: none; margin-right: 20px;">← Compendium</a>
+  Created by <a href="https://github.com/sean-holdstock/" style="color: #d4af37; text-decoration: none;">Sean Holdstock</a> 2026
+</footer>
+
+<script>
+  const overlay = document.getElementById('board-overlay');
+
+  function focusQuest(element) {
+    if (element.classList.contains('focused')) { closeAllQuests(); return; }
+    closeAllQuests();
+    element.classList.add('focused');
+    overlay.classList.add('active');
+  }
+
+  function closeAllQuests() {
+    document.querySelectorAll('.quest-wrapper').forEach(q => q.classList.remove('focused'));
+    overlay.classList.remove('active');
+  }
+
+  overlay.addEventListener('click', closeAllQuests);
+</script>

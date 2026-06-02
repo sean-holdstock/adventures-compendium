@@ -1,0 +1,156 @@
+<div class="initiative-page">
+
+  <a href="/" class="back-link">← Compendium</a>
+
+  <h1 class="page-title">⚔️ Initiative Tracker</h1>
+
+  <!-- PARTICIPANT COUNT PICKER -->
+  <div class="picker-bar">
+    <label class="picker-label" for="participantCount">Combatants</label>
+    <div class="picker-controls">
+      <button class="picker-btn" id="decreaseBtn" onclick="adjustCount(-1)">−</button>
+      <span class="picker-value" id="participantCount">4</span>
+      <button class="picker-btn" id="increaseBtn" onclick="adjustCount(1)">+</button>
+    </div>
+    <button class="generate-btn" onclick="generateRows()">Generate</button>
+  </div>
+
+  <!-- PARTICIPANT LIST -->
+  <div class="combatant-list" id="combatantList"></div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="action-bar" id="actionBar">
+    <button class="order-btn" onclick="orderCombatants()">⚔ Order Initiative</button>
+    <button class="next-btn hidden" id="nextTurnBtn" onclick="nextTurn()">→ Next Turn</button>
+    <button class="reset-btn" onclick="resetTracker()">↺ Reset</button>
+  </div>
+
+  <footer class="home-footer" style="margin-top: 16px;">
+    Created by <a href="https://github.com/sean-holdstock/">Sean Holdstock</a> 2026
+  </footer>
+
+</div>
+
+<script>
+  let count     = 4;
+  let turnIndex = -1;
+
+  // ── PICKER ──────────────────────────────────────────────────────────────
+  function adjustCount(delta) {
+    count = Math.min(10, Math.max(1, count + delta));
+    document.getElementById('participantCount').textContent = count;
+    document.getElementById('decreaseBtn').disabled = count <= 1;
+    document.getElementById('increaseBtn').disabled = count >= 10;
+  }
+
+  // ── GENERATE ROWS ────────────────────────────────────────────────────────
+  function generateRows() {
+    const list = document.getElementById('combatantList');
+    list.innerHTML = '';
+    turnIndex = -1;
+    document.getElementById('nextTurnBtn').classList.add('hidden');
+
+    for (let i = 0; i < count; i++) {
+      list.appendChild(makeRow(i));
+    }
+  }
+
+  function makeRow(index) {
+    const row = document.createElement('div');
+    row.className   = 'combatant-row';
+    row.dataset.idx = index;
+    row.innerHTML = `
+      <div class="row-pin"></div>
+      <div class="row-number">${index + 1}</div>
+      <div class="row-fields">
+        <div class="field-group name-group">
+          <label>Name</label>
+          <input class="field-input name-input" type="text" placeholder="Goblin Chief…" />
+        </div>
+        <div class="field-group init-group">
+          <label>Initiative</label>
+          <input class="field-input init-input" type="number" min="-5" max="30" placeholder="—" />
+        </div>
+        <div class="field-group hp-group">
+          <label>HP</label>
+          <div class="hp-pair">
+            <input class="field-input hp-input hp-current" type="number" min="0" placeholder="Cur" />
+            <span class="hp-sep">/</span>
+            <input class="field-input hp-input hp-max" type="number" min="0" placeholder="Max" />
+          </div>
+        </div>
+      </div>
+    `;
+    return row;
+  }
+
+  // ── ORDER ────────────────────────────────────────────────────────────────
+  function orderCombatants() {
+    const list = document.getElementById('combatantList');
+    const rows = [...list.querySelectorAll('.combatant-row')];
+
+    if (rows.length === 0) { alert('Generate some combatants first!'); return; }
+
+    // Snapshot values
+    const data = rows.map(row => ({
+      el:   row,
+      name: row.querySelector('.name-input').value.trim() || '(Unknown)',
+      init: parseInt(row.querySelector('.init-input').value, 10),
+      cur:  row.querySelector('.hp-current').value,
+      max:  row.querySelector('.hp-max').value,
+    }));
+
+    // Sort descending — empty initiative sinks to bottom
+    data.sort((a, b) => {
+      if (isNaN(a.init) && isNaN(b.init)) return 0;
+      if (isNaN(a.init)) return 1;
+      if (isNaN(b.init)) return -1;
+      return b.init - a.init;
+    });
+
+    // Count initiatives to detect ties
+    const initCounts = {};
+    data.forEach(d => {
+      if (!isNaN(d.init)) initCounts[d.init] = (initCounts[d.init] || 0) + 1;
+    });
+
+    // Rebuild list
+    list.innerHTML = '';
+    data.forEach((d, i) => {
+      d.el.querySelector('.row-number').textContent = i + 1;
+      d.el.querySelector('.name-input').value       = d.name;
+      d.el.querySelector('.hp-current').value       = d.cur;
+      d.el.querySelector('.hp-max').value           = d.max;
+      d.el.classList.remove('active-turn', 'tie-highlight');
+
+      if (!isNaN(d.init) && initCounts[d.init] > 1) {
+        d.el.classList.add('tie-highlight');
+      }
+      list.appendChild(d.el);
+    });
+
+    turnIndex = -1;
+    document.getElementById('nextTurnBtn').classList.remove('hidden');
+  }
+
+  // ── TURN TRACKING ────────────────────────────────────────────────────────
+  function nextTurn() {
+    const rows = [...document.querySelectorAll('.combatant-row')];
+    if (rows.length === 0) return;
+
+    rows.forEach(r => r.classList.remove('active-turn'));
+    turnIndex = (turnIndex + 1) % rows.length;
+    rows[turnIndex].classList.add('active-turn');
+    rows[turnIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── RESET ────────────────────────────────────────────────────────────────
+  function resetTracker() {
+    document.getElementById('combatantList').innerHTML = '';
+    document.getElementById('nextTurnBtn').classList.add('hidden');
+    turnIndex = -1;
+  }
+
+  // ── INIT ─────────────────────────────────────────────────────────────────
+  generateRows();
+</script>

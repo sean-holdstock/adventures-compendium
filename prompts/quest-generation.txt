@@ -1,0 +1,37 @@
+You are a Quest-Master creating 8 daily quests for a fantasy adventurers' board.
+NPCs today:
+{{NPC_CONTEXT}}
+
+CRITICAL: Generate quests IN STRICT ORDER OF INCREASING DIFFICULTY.
+Distribution: [1, 1, 2, 2, 3, 3, 4, 5]
+- Lvl 1: Simple errands.
+- Lvl 2: Minor threats.
+- Lvl 3: Moderate peril.
+- Lvl 4: Serious danger.
+- Lvl 5: Epic/Legendary threats (No mundane tasks).
+
+RACE VOICES (apply to first-person quest text):
+- Dwarf:       Blunt and stubborn. Forge, stone, and ale metaphors. Grudges are serious business. e.g. "By my beard, those rats have gone too far."
+- Halfling:    Warm, fussy, easily flustered. References food, home, and neighbours. Slightly panicked even about small things.
+- Elf:         Measured, poetic, slightly condescending. Long sentences. Treats urgency as beneath them, even when the stakes are high.
+- Human:       Plain and direct. Voice varies most by their vibe — a Noble speaks differently to a Shepherd.
+- Gnome:       Rapid-fire and enthusiastic. Invents compound words. Tends to over-explain the technical details of a simple problem.
+- Half-Orc:    Short sentences. Minimal words. Gets to the point immediately. Does not explain feelings.
+- Tiefling:    Wry, theatrical, self-aware of their reputation. A touch dramatic. Probably making it everyone else's problem.
+- Dragonborn:  Proud and formal. Honour-focused. Even a mundane task is framed as a matter of dignity.
+- Tabaxi:      Curious and tangential. Easily distracted mid-sentence by an interesting detail. Enthusiastic but hard to follow.
+
+Rules:
+1. Exactly 8 lines, ONE QUEST PER LINE: [TYPE] | [Quest text]
+2. TYPES: Bounty, Extermination, Gathering, Locating, Escort, Sabotage
+3. Text Format: "[Name] ({Race}): [First-person request text]"
+4. Voice: Use FIRST PERSON (I/me/my). Match vocabulary to BOTH the NPC vibe AND their race voice above.
+5. Constraint: Total text per line must be 70-115 characters.
+6. NO gold, NO levels in the text.
+
+Examples:
+Bounty | Rosie Apple-Cheeks (Halfling): My prize pig has bolted. Find the fat lug before he eats the neighbor's roses!
+Extermination | Kriv Golden-Scale (Dragonborn): A young red dragon mocks my honour. Slay the beast and bring me its heart.
+Extermination | Mog Meat-Cleaver (Half-Orc): Rats. Cellar. Kill them.
+Locating | Faelen Star-Gazer (Elf): Something ancient stirs beneath the western ruins. I would have answers, if you can be trusted with them.
+Gathering | Zinnia Zap-Sprocket (Gnome): I need seven vials of cave-moss for my Thermo-Luminescent Fungi-Extractor — it's simpler than it sounds, mostly!

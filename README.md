@@ -1,83 +1,121 @@
-# Adventures Compendium — Node.js
+# The Adventurer's Compendium
 
-A daily fantasy quest board powered by Gemini AI. Converted from Python/Flask to Node.js/Express.
-
-## Stack
-
-| Layer      | Python (old)          | Node.js (new)           |
-|------------|-----------------------|-------------------------|
-| Server     | Flask + Gunicorn      | Express.js              |
-| Templates  | Jinja2 (inline)       | express-handlebars      |
-| AI         | google-genai          | @google/genai           |
-| Scheduling | On-request + date check | node-cron (midnight)  |
-| Process    | Gevent workers        | Node.js single process  |
-| Container  | python:3.12-slim      | node:22-alpine          |
-
-## Project Structure
-
-```
-├── src/
-│   ├── app.js                  # Entry point, Express setup, cron
-│   ├── routes/
-│   │   └── quests.js           # GET /quest
-│   ├── services/
-│   │   ├── questGenerator.js   # AI generation + fallback pool
-│   │   └── questCache.js       # quests.json read/write
-│   └── data/
-│       └── npcs.js             # NPC table, quest pools, grievances
-├── views/
-│   ├── layouts/main.hbs        # Base HTML layout
-│   └── quest.hbs               # Quest board template
-├── public/                     # Static assets (served at /static/)
-│   ├── cartoon-stone-texture.png
-│   └── weathered-scroll-transparent.png
-├── nginx/templates/
-│   └── default.conf.template   # Unchanged except port 8000 → 3000
-├── Dockerfile
-├── docker-compose.yml
-└── package.json
-```
+A fantasy DM toolkit. Currently includes a daily AI-generated quest board and a combat initiative tracker.
 
 ## Setup
 
-1. Copy your `.env` file — it needs one key:
+1. Add your `.env` file to the project root:
    ```
    GEMINI_API_KEY=your-key-here
    DOMAIN_NAME=yourdomain.com
    ```
 
-2. Copy your two PNG files into `public/`:
-   - `public/cartoon-stone-texture.png`
-   - `public/weathered-scroll-transparent.png`
+2. Add your assets to `public/`:
+   - `public/tavern-bg.png` — background image
+   - `public/cartoon-stone-texture.png` — stone texture
+   - `public/weathered-scroll-transparent.png` — scroll texture for quest cards
 
-3. Any existing `quests.json` from the Python version is **fully compatible** — same schema.
+---
 
-## Running locally
+## Running locally (no SSL)
 
 ```bash
 npm install
-npm run dev        # uses --watch for auto-reload
+npm run dev
+# → http://localhost:3000
 ```
 
-Visit: http://localhost:3000/quest
-
-## Running with Docker
+Or via Docker with the local compose override (HTTP only, no certbot):
 
 ```bash
-docker compose up --build
+docker compose -f docker-compose.local.yml up --build
+# → http://localhost
 ```
+
+---
+
+## Deploying to a server with SSL
+
+Your domain's DNS A record must point at your server's public IP before starting.
+
+### Step 1 — Activate the bootstrap nginx config
+
+The bootstrap config is HTTP-only so nginx can start without certs that don't exist yet.
+
+```bash
+cd nginx/templates
+cp default.conf.template default.conf.template.ssl   # back up the real config
+cp bootstrap.conf.template default.conf.template     # activate bootstrap
+```
+
+### Step 2 — Start the stack
+
+```bash
+docker compose up --build -d
+```
+
+Check nginx started cleanly:
+```bash
+docker logs compendium-nginx
+```
+
+### Step 3 — Issue the SSL certificate
+
+```bash
+docker compose run --rm certbot certonly \
+  --webroot \
+  --webroot-path /var/www/certbot \
+  --email your@email.com \
+  --agree-tos \
+  --no-eff-email \
+  -d yourdomain.com
+```
+
+You should see: `Successfully received certificate.`
+
+### Step 4 — Swap back to the full SSL config
+
+```bash
+cd nginx/templates
+cp default.conf.template.ssl default.conf.template   # restore SSL config
+```
+
+### Step 5 — Rebuild and restart
+
+```bash
+docker compose up --build -d
+```
+
+Visit `https://yourdomain.com` — you should land on the homepage over HTTPS.
+
+### Automatic renewal
+
+The certbot container runs a renewal check every 12 hours automatically.
+Add a weekly nginx restart to your server crontab so renewed certs are picked up:
+
+```bash
+crontab -e
+# add:
+0 3 * * 1 cd /path/to/adventurers-compendium && docker compose restart nginx
+```
+
+---
 
 ## Routes
 
-| Route    | Description                          |
-|----------|--------------------------------------|
-| `/`      | Coming soon placeholder              |
-| `/quest` | The daily quest board                |
+| Route         | Description                  |
+|---------------|------------------------------|
+| `/`           | Homepage — tool directory    |
+| `/quest`      | Daily AI quest board         |
+| `/initiative` | Combat initiative tracker    |
 
-## Key differences from Python version
+## Network architecture
 
-- **Quest regeneration** now happens via a midnight cron job (`node-cron`) rather than
-  on every request with a date check. The on-request date check is still there as a safety net.
-- **Static files** are now served by Express at `/static/` — the Nginx volume mount for
-  static files is removed (Express handles it directly from the container).
-- **No Gevent** — Node.js handles concurrency natively; no worker config needed.
+```
+Internet → nginx (ports 80/443)
+               ↓  backend network
+           web:3000 (Express/Node)
+```
+
+nginx and the web container share the `backend` Docker network.
+The web container is never exposed directly to the internet.

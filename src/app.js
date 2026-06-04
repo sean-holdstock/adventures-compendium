@@ -14,6 +14,7 @@ const { generateDailyQuests } = require('./services/questGenerator.js');
 const app  = express();
 const PORT = process.env.PORT ?? 3000;
 
+// --- Templating ---
 app.engine('hbs', engine({
   extname:       'hbs',
   defaultLayout: 'main',
@@ -22,6 +23,7 @@ app.engine('hbs', engine({
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, '../views'));
 
+// --- Static files ---
 app.use('/static', express.static(path.join(__dirname, '../public')));
 
 // --- Routes ---
@@ -29,7 +31,7 @@ app.get('/', (req, res) => res.render('home'));
 app.use('/quest',      questsRouter);
 app.use('/initiative', initiativeRouter);
 
-// --- Daily midnight regeneration ---
+// --- Daily midnight quest regeneration ---
 cron.schedule('0 0 * * *', async () => {
   console.log('[cron] Midnight — regenerating daily quests...');
   try {
@@ -40,6 +42,7 @@ cron.schedule('0 0 * * *', async () => {
   }
 });
 
+// --- Start ---
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[server] Running on http://0.0.0.0:${PORT}`);
+  console.log(`[server] Adventurers Compendium running on http://0.0.0.0:${PORT}`);
 });

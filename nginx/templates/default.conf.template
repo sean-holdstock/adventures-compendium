@@ -1,0 +1,65 @@
+# Upstream — "web" is the docker-compose service name, resolved on the backend network.
+# nginx and the web container must both be on the same "backend" network (see docker-compose.yml).
+upstream compendium_app {
+    server web:3000;
+    keepalive 32;              # reuse connections to the app — avoids reconnect overhead
+}
+
+# ── HTTP: redirect everything to HTTPS, except certbot challenge ────────────
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name ${DOMAIN_NAME};
+
+    # Certbot needs this to issue/renew certs without HTTPS
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# ── HTTPS ────────────────────────────────────────────────────────────────────
+server {
+    listen      443 ssl;
+    listen      [::]:443 ssl;
+    server_name ${DOMAIN_NAME};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN_NAME}/privkey.pem;
+
+    # Modern SSL — drop old TLS versions
+    ssl_protocols             TLSv1.2 TLSv1.3;
+    ssl_ciphers               HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache         shared:SSL:10m;
+    ssl_session_timeout       10m;
+
+    # ── Proxy to Express ──────────────────────────────────────────────────
+    location / {
+        proxy_pass         http://compendium_app;
+
+        proxy_http_version 1.1;
+
+        # Required for keepalive connections to upstream
+        proxy_set_header   Connection "";
+
+        # Pass real client info to Express
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # Timeouts — increase if Gemini AI call is slow on first load
+        proxy_connect_timeout 10s;
+        proxy_send_timeout    60s;
+        proxy_read_timeout    60s;
+
+        # Buffer settings — avoids nginx buffering large responses unnecessarily
+        proxy_buffering    on;
+        proxy_buffer_size  4k;
+        proxy_buffers      8 4k;
+    }
+}

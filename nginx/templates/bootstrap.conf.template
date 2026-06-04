@@ -1,0 +1,43 @@
+# ============================================================
+# BOOTSTRAP CONFIG — HTTP only, no SSL
+# ============================================================
+# Use this BEFORE you have a certificate.
+#
+# Steps:
+#   1. Rename this file to default.conf.template
+#      (back up the real one first as default.conf.template.ssl)
+#   2. docker compose up --build -d
+#   3. Run certbot to issue the cert (see README.md)
+#   4. Swap default.conf.template.ssl back to default.conf.template
+#   5. docker compose up --build -d
+# ============================================================
+
+upstream compendium_app {
+    server web:3000;
+    keepalive 32;
+}
+
+server {
+    listen      80;
+    listen      [::]:80;
+    server_name ${DOMAIN_NAME};
+
+    # Certbot places its challenge files here
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # Everything else proxies straight through to Express
+    location / {
+        proxy_pass         http://compendium_app;
+        proxy_http_version 1.1;
+        proxy_set_header   Connection "";
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 10s;
+        proxy_send_timeout    60s;
+        proxy_read_timeout    60s;
+    }
+}

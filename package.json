@@ -1,7 +1,7 @@
 {
-  "name": "quest-board",
+  "name": "adventurers-compendium",
   "version": "1.0.0",
-  "description": "Daily fantasy quest board powered by Gemini AI",
+  "description": "A fantasy DM toolkit — quest board, initiative tracker, and more",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",

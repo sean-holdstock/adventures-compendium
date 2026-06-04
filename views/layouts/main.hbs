@@ -18,20 +18,19 @@
     }
 
     body {
-      background:
-        radial-gradient(circle at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%),
-        url("/static/tavern-bg.png"),
-        #1e0f09;
-      background-attachment: fixed;
-      color: var(--ink);
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-family: 'Architects Daughter', cursive;
-    }
+  background:
+    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    url("/static/tavern-bg.png") center / cover no-repeat fixed,
+    #1e0f09;
+  color: var(--ink);
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Architects Daughter', cursive;
+}
 
     /* ═══════════════════════════════════════════
        QUEST BOARD
@@ -271,7 +270,6 @@
       .hourglass-label { font-size: 1.4rem !important; }
       .timer-bar-outer { height: 24px !important; }
       h1 { font-size: 1.6rem !important; padding: 12px 10px !important; margin-bottom: 25px !important; }
-
       .quest-wrapper.focused {
         position: fixed !important; top: 50% !important; left: 50% !important;
         width: 90vw !important; height: auto !important;
@@ -433,7 +431,6 @@
       width: 100%;
     }
 
-    /* back link */
     .back-link {
       align-self: flex-start;
       font-family: 'MedievalSharp', cursive;
@@ -444,7 +441,6 @@
     }
     .back-link:hover { color: var(--gold-bright); }
 
-    /* picker */
     .picker-bar {
       display: flex;
       align-items: center;
@@ -506,7 +502,6 @@
     }
     .generate-btn:hover { filter: brightness(1.15); }
 
-    /* combatant list */
     .combatant-list {
       display: flex;
       flex-direction: column;
@@ -600,7 +595,6 @@
     .hp-input { width: 64px; }
     .hp-sep   { color: var(--gold-bright); font-size: 1.1em; font-weight: bold; }
 
-    /* state highlights */
     .combatant-row.active-turn {
       border-color: var(--gold-bright);
       box-shadow: 0 0 0 3px rgba(212,175,55,0.4), 0 6px 20px rgba(0,0,0,0.6);
@@ -629,7 +623,6 @@
       white-space: nowrap;
     }
 
-    /* action bar */
     .action-bar {
       display: flex;
       gap: 16px;
@@ -671,14 +664,13 @@
 
     .hidden { display: none !important; }
 
-    /* responsive — initiative */
     @media (max-width: 600px) {
-      .picker-bar  { flex-wrap: wrap; }
+      .picker-bar   { flex-wrap: wrap; }
       .generate-btn { margin-left: 0; width: 100%; }
       .combatant-row { padding-left: 44px; }
-      .row-fields  { gap: 10px; }
-      .init-group  { width: 75px; }
-      .hp-input    { width: 52px; }
+      .row-fields   { gap: 10px; }
+      .init-group   { width: 75px; }
+      .hp-input     { width: 52px; }
     }
   </style>
 </head>

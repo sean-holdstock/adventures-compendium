@@ -30,10 +30,7 @@ function shuffle(arr) {
 }
 
 function sampleN(arr, n) { return shuffle(arr).slice(0, n); }
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 function buildFallbackQuests() {
   return LEVEL_DISTRIBUTION.map((lvl) => {
@@ -67,8 +64,8 @@ async function buildAIQuests() {
   const ai         = new GoogleGenAI({ apiKey });
   const todaysNpcs = sampleN(NPCS, 8);
   const npcContext = todaysNpcs.map(n => `- ${n.name} (${n.race}, ${n.vibe})`).join('\n');
+  const prompt     = loadPromptTemplate().replace('{{NPC_CONTEXT}}', npcContext);
 
-  const prompt = loadPromptTemplate().replace('{{NPC_CONTEXT}}', npcContext);
   console.log('[generator] Prompt loaded from:', PROMPT_FILE);
 
   const response = await ai.models.generateContent({

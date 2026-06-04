@@ -1,21 +1,21 @@
 services:
   web:
     build: .
-    container_name: quest-web
+    container_name: compendium-web
     restart: unless-stopped
     volumes:
-      - quest-data:/app
+      - quest-data:/app/quests.json   # persists only the cache file, not the whole app
     env_file:
       - .env
     environment:
       - NODE_ENV=production
       - PORT=3000
     networks:
-      - backend
+      - backend                        # web is ONLY on backend — never exposed directly
 
   nginx:
     image: nginx:alpine
-    container_name: quest-nginx
+    container_name: compendium-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -29,12 +29,12 @@ services:
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     networks:
-      - frontend
-      - backend
+      - frontend                       # nginx faces the internet on frontend
+      - backend                        # AND sits on backend so it can reach web:3000
 
   certbot:
     image: certbot/certbot:latest
-    container_name: quest-certbot
+    container_name: compendium-certbot
     volumes:
       - certbot-webroot:/var/www/certbot
       - certs:/etc/letsencrypt

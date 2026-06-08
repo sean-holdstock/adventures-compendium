@@ -15,115 +15,123 @@
   <div class="combatant-list" id="combatantList"></div>
 
   <div class="action-bar">
-    <button class="order-btn" onclick="orderCombatants()">⚔ Order Initiative</button>
+    <button class="order-btn" id="orderBtn" onclick="orderCombatants()">⚔ Order Initiative</button>
     <button class="next-btn hidden" id="nextTurnBtn" onclick="nextTurn()">→ Next Turn</button>
     <button class="reset-btn" onclick="resetTracker()">↺ Reset</button>
   </div>
-
-  <footer class="home-footer" style="margin-top: 16px;">
-    Created by <a href="https://github.com/sean-holdstock/">Sean Holdstock</a> 2026
-  </footer>
 </div>
 
+<style>
+  :root { --gold: #e5c07b; }
+  .combatant-row {
+    display: grid;
+    grid-template-columns: 30px 1fr 100px 220px 60px;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(61,43,31,0.95) 0%, rgba(42,26,18,0.95) 100%);
+    border: 2px solid #5c3d28;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    color: var(--gold);
+  }
+  .active-turn { border: 2px solid var(--gold); box-shadow: 0 0 10px var(--gold); }
+  .hp-controls { display: flex; align-items: center; gap: 5px; }
+  .hp-btn { width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; color: white; font-weight: bold; }
+  .btn-minus { background: #d73a49; }
+  .btn-plus { background: #28a745; }
+  .mod-input { width: 35px; background: rgba(0,0,0,0.3); border: 1px solid var(--gold); color: white; text-align: center; }
+  .skull-btn { background: none; border: none; cursor: pointer; font-size: 1.2em; text-align: center; }
+  .label-text { font-size: 0.7em; opacity: 0.7; display: block; }
+  .hidden { display: none; }
+</style>
+
 <script>
-  let count     = 4;
+  let count = 4;
   let turnIndex = -1;
+  let combatants = [];
 
   function adjustCount(delta) {
     count = Math.min(10, Math.max(1, count + delta));
     document.getElementById('participantCount').textContent = count;
-    document.getElementById('decreaseBtn').disabled = count <= 1;
-    document.getElementById('increaseBtn').disabled = count >= 10;
   }
 
   function generateRows() {
     const list = document.getElementById('combatantList');
     list.innerHTML = '';
-    turnIndex = -1;
+    document.getElementById('orderBtn').classList.remove('hidden');
     document.getElementById('nextTurnBtn').classList.add('hidden');
-    for (let i = 0; i < count; i++) list.appendChild(makeRow(i));
-  }
-
-  function makeRow(index) {
-    const row = document.createElement('div');
-    row.className   = 'combatant-row';
-    row.dataset.idx = index;
-    row.innerHTML = `
-      <div class="row-pin"></div>
-      <div class="row-number">${index + 1}</div>
-      <div class="row-fields">
-        <div class="field-group name-group">
-          <label>Name</label>
-          <input class="field-input name-input" type="text" placeholder="Goblin Chief…" />
-        </div>
-        <div class="field-group init-group">
-          <label>Initiative</label>
-          <input class="field-input init-input" type="number" min="-5" max="30" placeholder="—" />
-        </div>
-        <div class="field-group hp-group">
-          <label>HP</label>
-          <div class="hp-pair">
-            <input class="field-input hp-input hp-current" type="number" min="0" placeholder="Cur" />
-            <span class="hp-sep">/</span>
-            <input class="field-input hp-input hp-max" type="number" min="0" placeholder="Max" />
-          </div>
-        </div>
-      </div>
-    `;
-    return row;
+    for (let i = 0; i < count; i++) {
+      const row = document.createElement('div');
+      row.className = 'combatant-row';
+      row.innerHTML = `
+        <div class="row-number">${i + 1}</div>
+        <input class="field-input name-input" type="text" placeholder="Name" />
+        <input class="field-input init-input" type="number" placeholder="Init" />
+        <input class="field-input hp-setup" type="number" placeholder="Total HP" />
+        <div></div>
+      `;
+      list.appendChild(row);
+    }
   }
 
   function orderCombatants() {
+    const rows = [...document.querySelectorAll('.combatant-row')];
+    combatants = rows.map(row => ({
+      name: row.querySelector('.name-input').value || 'Unknown',
+      init: parseInt(row.querySelector('.init-input').value) || 0,
+      cur: parseInt(row.querySelector('.hp-setup').value) || 0,
+      max: parseInt(row.querySelector('.hp-setup').value) || 0
+    })).sort((a, b) => b.init - a.init);
+    renderCombatList();
+  }
+
+  function renderCombatList() {
     const list = document.getElementById('combatantList');
-    const rows = [...list.querySelectorAll('.combatant-row')];
-    if (rows.length === 0) { alert('Generate some combatants first!'); return; }
-
-    const data = rows.map(row => ({
-      el:   row,
-      name: row.querySelector('.name-input').value.trim() || '(Unknown)',
-      init: parseInt(row.querySelector('.init-input').value, 10),
-      cur:  row.querySelector('.hp-current').value,
-      max:  row.querySelector('.hp-max').value,
-    }));
-
-    data.sort((a, b) => {
-      if (isNaN(a.init) && isNaN(b.init)) return 0;
-      if (isNaN(a.init)) return 1;
-      if (isNaN(b.init)) return -1;
-      return b.init - a.init;
-    });
-
-    const initCounts = {};
-    data.forEach(d => { if (!isNaN(d.init)) initCounts[d.init] = (initCounts[d.init] || 0) + 1; });
-
     list.innerHTML = '';
-    data.forEach((d, i) => {
-      d.el.querySelector('.row-number').textContent = i + 1;
-      d.el.querySelector('.name-input').value       = d.name;
-      d.el.querySelector('.hp-current').value       = d.cur;
-      d.el.querySelector('.hp-max').value           = d.max;
-      d.el.classList.remove('active-turn', 'tie-highlight');
-      if (!isNaN(d.init) && initCounts[d.init] > 1) d.el.classList.add('tie-highlight');
-      list.appendChild(d.el);
+    combatants.forEach((c, i) => {
+      const row = document.createElement('div');
+      row.className = 'combatant-row';
+      row.innerHTML = `
+        <div class="row-number">${i + 1}</div>
+        <div style="color: var(--gold)">${c.name}</div>
+        <div><small class="label-text">Int</small>${c.init}</div>
+        <div class="hp-controls">
+          <div><small class="label-text">HP</small>${c.cur} / ${c.max}</div>
+          <button class="hp-btn btn-minus" onclick="updateHP(${i}, -1)">-</button>
+          <input class="mod-input" type="number" id="mod-${i}" value="1" />
+          <button class="hp-btn btn-plus" onclick="updateHP(${i}, 1)">+</button>
+        </div>
+        <button class="skull-btn" onclick="removeCombatant(${i})"><small class="label-text" style="color: var(--gold)">Dead</small>💀</button>
+      `;
+      list.appendChild(row);
     });
-
-    turnIndex = -1;
+    document.getElementById('orderBtn').classList.add('hidden');
     document.getElementById('nextTurnBtn').classList.remove('hidden');
   }
 
+  function updateHP(index, mod) {
+    const amount = parseInt(document.getElementById(`mod-${index}`).value) || 0;
+    combatants[index].cur += (amount * mod);
+    renderCombatList();
+  }
+
+  function removeCombatant(index) {
+    combatants.splice(index, 1);
+    renderCombatList();
+  }
+
   function nextTurn() {
-    const rows = [...document.querySelectorAll('.combatant-row')];
-    if (rows.length === 0) return;
+    const rows = document.querySelectorAll('.combatant-row');
     rows.forEach(r => r.classList.remove('active-turn'));
-    turnIndex = (turnIndex + 1) % rows.length;
+    turnIndex = (turnIndex + 1) % combatants.length;
     rows[turnIndex].classList.add('active-turn');
     rows[turnIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function resetTracker() {
-    document.getElementById('combatantList').innerHTML = '';
-    document.getElementById('nextTurnBtn').classList.add('hidden');
-    turnIndex = -1;
+    combatants = [];
+    generateRows();
   }
 
   generateRows();

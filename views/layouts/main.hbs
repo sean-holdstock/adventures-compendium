@@ -18,23 +18,23 @@
     }
 
     body {
-  background:
-    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-    url("/static/tavern-bg.png") center / cover no-repeat fixed,
-    #1e0f09;
-  color: var(--ink);
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: 'Architects Daughter', cursive;
-}
+      background:
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        url("/static/tavern-bg.png") center / cover no-repeat fixed,
+        #1e0f09;
+      color: var(--ink);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-family: 'Architects Daughter', cursive;
+    }
 
-    /* ═══════════════════════════════════════════
+    /* -------------------------------------------
        QUEST BOARD
-    ═══════════════════════════════════════════ */
+    ------------------------------------------- */
 
     #board-overlay {
       position: fixed;
@@ -288,9 +288,9 @@
       }
     }
 
-    /* ═══════════════════════════════════════════
+    /* -------------------------------------------
        HOMEPAGE
-    ═══════════════════════════════════════════ */
+    ------------------------------------------- */
 
     .home-page {
       width: min(900px, 96vw);
@@ -403,9 +403,9 @@
     .home-footer a { color: var(--gold-bright); text-decoration: none; }
     .home-footer a:hover { text-decoration: underline; }
 
-    /* ═══════════════════════════════════════════
+    /* -------------------------------------------
        INITIATIVE TRACKER
-    ═══════════════════════════════════════════ */
+    ------------------------------------------- */
 
     .initiative-page {
       width: min(900px, 96vw);
@@ -510,64 +510,27 @@
     }
 
     .combatant-row {
-      position: relative;
-      display: flex;
+      display: grid;
+      /* 1: Skull, 2: Index Number, 3: Name Input (flexible), 4: Init, 5: HP Module */
+      grid-template-columns: 40px 30px 1fr 80px 180px;
       align-items: center;
-      gap: 16px;
+      gap: 10px;
       background: linear-gradient(135deg, rgba(61,43,31,0.95) 0%, rgba(42,26,18,0.95) 100%);
       border: 2px solid #5c3d28;
       border-radius: 6px;
-      padding: 14px 18px 14px 54px;
+      padding: 8px 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+      width: 100%;
     }
 
-    .row-pin {
-      position: absolute;
-      left: 18px; top: 50%;
-      transform: translateY(-50%);
-      width: 18px; height: 18px;
-      background: radial-gradient(circle at 35% 35%, #888, #222);
-      border: 2px solid #111;
-      border-radius: 50%;
-      box-shadow: inset 1px 1px 0 #aaa, 0 2px 4px rgba(0,0,0,0.7);
-      flex-shrink: 0;
-    }
+
 
     .row-number {
       font-family: 'MedievalSharp', cursive;
       color: var(--gold-bright);
       font-size: 1.3em;
-      min-width: 28px;
       text-align: center;
-      flex-shrink: 0;
     }
-
-    .row-fields {
-      display: flex;
-      gap: 14px;
-      flex: 1;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .field-group label {
-      font-family: 'MedievalSharp', cursive;
-      color: #b8860b;
-      font-size: 0.7em;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .name-group { flex: 1; min-width: 160px; }
-    .init-group { width: 90px; }
-    .hp-group   { width: auto; }
 
     .field-input {
       background: rgba(0,0,0,0.45);
@@ -576,51 +539,62 @@
       color: #f4e4bc;
       font-family: 'Architects Daughter', cursive;
       font-size: 1em;
-      padding: 7px 10px;
+      padding: 5px 10px;
       width: 100%;
-      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .field-input:focus {
-      outline: none;
-      border-color: var(--gold-bright);
-      box-shadow: 0 0 0 2px rgba(212,175,55,0.25);
-    }
-    .field-input::placeholder { color: #6b5040; }
 
-    .hp-pair {
+    .hp-module {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      justify-content: flex-start;
     }
-    .hp-input { width: 64px; }
-    .hp-sep   { color: var(--gold-bright); font-size: 1.1em; font-weight: bold; }
+
+    .hp-display {
+      font-family: 'MedievalSharp', serif;
+      color: #f4e4bc;
+      width: 40px;
+      text-align: center;
+      font-size: 1.1em;
+    }
+
+    .hp-adjust-box {
+      width: 40px;
+      height: 30px;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid #5c3d28;
+      color: #f4e4bc;
+      text-align: center;
+      font-family: 'Architects Daughter', cursive;
+    }
+
+    .hp-btn {
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      font-weight: bold;
+      font-family: sans-serif;
+    }
+
+    .btn-minus { background: #8b0000; color: white; }
+    .btn-plus { background: #228b22; color: white; }
+
+    .skull-btn {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      filter: grayscale(1);
+      transition: filter 0.2s;
+    }
+    .skull-btn:hover { filter: grayscale(0); }
 
     .combatant-row.active-turn {
       border-color: var(--gold-bright);
       box-shadow: 0 0 0 3px rgba(212,175,55,0.4), 0 6px 20px rgba(0,0,0,0.6);
       background: linear-gradient(135deg, rgba(80,55,25,0.98) 0%, rgba(55,35,15,0.98) 100%);
-    }
-    .combatant-row.active-turn .row-number {
-      color: #fff;
-      text-shadow: 0 0 8px var(--gold-bright);
-    }
-
-    .combatant-row.tie-highlight {
-      border-color: #c87941;
-      box-shadow: 0 0 0 2px rgba(200,121,65,0.35), 0 4px 12px rgba(0,0,0,0.5);
-    }
-    .combatant-row.tie-highlight::after {
-      content: '⚠ Tie — break manually';
-      position: absolute;
-      top: -11px; right: 14px;
-      background: #c87941;
-      color: #1a0f0d;
-      font-family: 'MedievalSharp', cursive;
-      font-size: 0.65em;
-      padding: 2px 8px;
-      border-radius: 3px;
-      font-weight: bold;
-      white-space: nowrap;
     }
 
     .action-bar {
@@ -644,33 +618,13 @@
     .order-btn:hover, .next-btn:hover, .reset-btn:hover { filter: brightness(1.15); }
     .order-btn:active, .next-btn:active, .reset-btn:active { transform: scale(0.97); }
 
-    .order-btn {
-      background: linear-gradient(145deg, #e6c253, #aa8a2e);
-      color: #1a0f0d;
-      border-color: #5c430d;
-    }
-
-    .next-btn {
-      background: linear-gradient(145deg, #3a7a3a, #255225);
-      color: #d4f4d4;
-      border-color: #255225;
-    }
-
-    .reset-btn {
-      background: linear-gradient(145deg, #3a251e, #2a1a12);
-      color: #b8860b;
-      border-color: #5c3d28;
-    }
-
-    .hidden { display: none !important; }
+    .order-btn { background: linear-gradient(145deg, #e6c253, #aa8a2e); color: #1a0f0d; border-color: #5c430d; }
+    .next-btn { background: linear-gradient(145deg, #3a7a3a, #255225); color: #d4f4d4; border-color: #255225; }
+    .reset-btn { background: linear-gradient(145deg, #3a251e, #2a1a12); color: #b8860b; border-color: #5c3d28; }
 
     @media (max-width: 600px) {
-      .picker-bar   { flex-wrap: wrap; }
-      .generate-btn { margin-left: 0; width: 100%; }
-      .combatant-row { padding-left: 44px; }
-      .row-fields   { gap: 10px; }
-      .init-group   { width: 75px; }
-      .hp-input     { width: 52px; }
+      .combatant-row { grid-template-columns: 20px 1fr 40px 100px 30px; gap: 5px; padding: 8px; }
+      .hp-adjust-box { width: 30px; }
     }
   </style>
 </head>

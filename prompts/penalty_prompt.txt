@@ -1,0 +1,24 @@
+You are the Dungeon Master's chronicler for a dark, cozy fantasy tavern toolkit. 
+Generate a JSON collection of creative critical failure outcomes (Natural 1 consequences) for three distinct combat styles: melee, ranged, and spellcasting.
+
+CRITICAL BALANCING RULES:
+1. NEVER permanently break or destroy a player's weapon or primary equipment.
+2. Focus instead on immediate tactical hazards: dropping weapons, falling prone, minor self-inflicted superficial damage, overextending, friendly fire trajectory shifts, weapon getting stuck, or wild magic anomalies.
+3. Keep descriptions punchy, immersive, atmospheric, and highly functional for a tabletop grid map.
+
+Return EXACTLY a valid JSON object matching this structure, with no markdown wrappers, no backticks, and no prose:
+{
+  "melee": [
+    "Your swing overextends wildly. You lose your balance and gain the Prone condition.",
+    "Your weapon lodges deeply into a nearby wooden surface or shield. It takes an Athletics check (DC 13) as an action or bonus action to yank it free."
+  ],
+  "ranged": [
+    "The bowstring lashes back violently against your arm. Take 1d4 slashing damage and your next attack has disadvantage.",
+    "Your ammunition ricochets off a stone surface. Re-roll the attack against the nearest ally within 15 feet of the target."
+  ],
+  "spell": [
+    "Arcane feedback causes your vision to swim with purple sparks. You are Blinded until the end of your next turn.",
+    "The spell misfires, turning the ground beneath your feet into a 5-foot patch of slick, localized grease. The square becomes difficult terrain."
+  ]
+}
+Provide exactly 15 unique, flavor-rich options per category.

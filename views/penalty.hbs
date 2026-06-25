@@ -1,0 +1,142 @@
+<div class="initiative-page">
+  <a href="/" class="back-link">← Compendium</a>
+  <h1 class="page-title">💀 Critical Failure Generator</h1>
+
+<div id="wizard-alert"{{#if using_archived}} class="show"{{/if}}>
+  <span>😴</span>
+  <div>
+    <strong style="color: #d4af37; display: block;">Notice from the Tavern:</strong>
+    The Wizard has gone to sleep. Using archived scrolls for today's penalties.
+  </div>
+</div>
+  <div class="picker-bar" style="justify-content: center; gap: 15px; flex-wrap: wrap;">
+    <span class="picker-label" style="display: none;">Style:</span>
+    <button class="order-btn filter-btn active-tab" onclick="selectCategory('melee', this)"> ⚔️ Melee</button>
+    <button class="order-btn filter-btn" onclick="selectCategory('ranged', this)">🎯 Ranged</button>
+    <button class="order-btn filter-btn" onclick="selectCategory('spell', this)">🔮 Spell</button>
+  </div>
+
+  <div class="quest-wrapper" style="cursor: default; width: 100%; max-width: 500px; margin: 25px auto;">
+    <div class="note" style="opacity: 1; animation: none; transform: none; min-height: 420px; padding: 85px 45px 65px;">
+      <div class="note-header" style="margin-bottom: 20px;">
+        <span class="stars" id="cardIcon">⚔️</span>
+        <div class="wanted-text" id="cardTitle" style="color: #8b0000; letter-spacing: 1px;">CRITICAL MELEE FAILURE</div>
+      </div>
+      
+      <div class="note-text" style="text-align: center; justify-content: space-between; align-items: center; min-height: 220px;">
+        <p id="penaltyEffect" style="font-size: 1.15em; margin: auto 0; line-height: 1.5; color: var(--ink);">
+          Choose an attacking discipline above and roll your fate...
+        </p>
+        
+        <div class="signature" id="cardFooter" style="font-size: 1.5em; width: 100%; border-top: 1px double rgba(0,0,0,0.15); padding-top: 12px; margin-top: auto; text-align: center;">
+          The Dice Have Spoken
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="next-btn" style="background: linear-gradient(145deg, #8b0000, #4a0000); border-color: #3a1a12; color: #f4e4bc; padding: 14px 40px; font-size: 1.1em;" onclick="rollFailure()">
+      💥 Strike the Anvil
+    </button>
+  </div>
+</div>
+
+<style>
+  /* Custom extensions built completely over your main.hbs variables */
+  .filter-btn {
+    padding: 8px 24px !important;
+    background: linear-gradient(145deg, #3a251e, #2a1a12) !important;
+    color: var(--gold-bright) !important;
+    border-color: #5c3d28 !important;
+    opacity: 0.75;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .filter-btn:hover, .filter-btn.active-tab {
+    opacity: 1;
+    background: linear-gradient(145deg, #e6c253, #aa8a2e) !important;
+    color: #1a0f0d !important;
+    border-color: #5c430d !important;
+    box-shadow: 0 0 12px rgba(212,175,55,0.35);
+  }
+
+  .text-pop-shake {
+    animation: popShake 0.35s ease-out;
+  }
+
+  @keyframes popShake {
+    0% { opacity: 0; transform: scale(0.96); filter: blur(1px); }
+    30% { transform: scale(1.02); color: #b71c1c; }
+    100% { opacity: 1; transform: scale(1); filter: blur(0); }
+  }
+</style>
+
+<script>
+  // Safe extraction of the parsed JSON payload served down by Express
+  const serverScribedData = {{{json penalties}}};
+
+  // Hardcoded safety array stack in case server communication is interrupted or API key limits are reached
+  const backupChronicles = {
+    melee: [
+      "Your weapon flies 10 feet out of your hands in a random direction. Retrieving it during combat triggers an opportunity attack.",
+      "Overextended swing! You lose your balance and gain the Prone condition.",
+      "Your weapon strikes wide and wedges deeply into a structural wall or furniture item. Freeing it requires a successful DC 12 Strength check as an action."
+    ],
+    ranged: [
+      "The bowstring snaps back roughly against your forearm. Take 1d4 bludgeoning damage and your next attack roll has disadvantage.",
+      "Mishap! Your ammunition ricochets cleanly off a hard surface and heads right toward your allies. Reroll the attack against the nearest companion.",
+      "You fumbled the load sequence. Your current ranged ammunition spills on the floor; cleaning your quiver takes your next movement action."
+    ],
+    spell: [
+      "A crackle of unstable magic backfires. You are completely Blinded by shimmering violet sparks until the end of your next turn.",
+      "Arcane feedback drains your focus. The spell fails completely, and you cannot cast spells of that specific school of magic until the end of your next turn.",
+      "The spell misfires wildly, casting its area effect directly onto your own square instead of the intended target space."
+    ]
+  };
+
+  let activeCategory = 'melee';
+
+  function selectCategory(category, button) {
+    activeCategory = category;
+    
+    // Toggle active state headers across tab choices
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-tab'));
+    button.classList.add('active-tab');
+
+    const title = document.getElementById('cardTitle');
+    const icon = document.getElementById('cardIcon');
+    
+    if (category === 'melee') {
+      title.innerText = "CRITICAL MELEE FAILURE";
+      icon.innerText = "⚔️";
+    } else if (category === 'ranged') {
+      title.innerText = "CRITICAL RANGED FAILURE";
+      icon.innerText = "🎯";
+    } else {
+      title.innerText = "CRITICAL SPELL FAILURE";
+      icon.innerText = "🔮";
+    }
+    
+    document.getElementById('penaltyEffect').innerText = "Strike the anvil to pull a dynamic " + category + " penalty consequence...";
+  }
+
+  function rollFailure() {
+    // Select array source based on whether backend successfully loaded the Gemini array
+    const sourceDeck = (serverScribedData && serverScribedData[activeCategory] && serverScribedData[activeCategory].length)
+      ? serverScribedData[activeCategory]
+      : backupChronicles[activeCategory];
+      
+    const rollIndex = Math.floor(Math.random() * sourceDeck.length);
+    const chosenText = sourceDeck[rollIndex];
+    
+    const displayBox = document.getElementById('penaltyEffect');
+    
+    // Reset and trigger pop animation
+    displayBox.classList.remove('text-pop-shake');
+    void displayBox.offsetWidth; // Force DOM element layout reflow refresh
+    displayBox.classList.add('text-pop-shake');
+    
+    displayBox.innerText = chosenText;
+  }
+</script>

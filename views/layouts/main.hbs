@@ -33,7 +33,7 @@
     }
 
     /* -------------------------------------------
-       QUEST BOARD
+       QUEST BOARD & GLOBAL TOOLS
     ------------------------------------------- */
 
     #board-overlay {
@@ -59,10 +59,18 @@
       z-index: 2000;
       display: flex;
       align-items: center; gap: 15px;
-      transform: translateY(-150%);
-      transition: transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+      
+      /* Updated for Smooth Opacity & Visibility Auto-Fade Toggle */
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-50px);
+      transition: opacity 1s ease-out, visibility 1s ease-out, transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
     }
-    #wizard-alert.show { transform: translateY(0); }
+    #wizard-alert.show { 
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0); 
+    }
 
     .board {
       position: relative;
@@ -511,7 +519,6 @@
 
     .combatant-row {
       display: grid;
-      /* 1: Skull, 2: Index Number, 3: Name Input (flexible), 4: Init, 5: HP Module */
       grid-template-columns: 40px 30px 1fr 80px 180px;
       align-items: center;
       gap: 10px;
@@ -522,8 +529,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       width: 100%;
     }
-
-
 
     .row-number {
       font-family: 'MedievalSharp', cursive;
@@ -630,5 +635,18 @@
 </head>
 <body>
   {{{body}}}
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const wizardAlert = document.getElementById('wizard-alert');
+      
+      if (wizardAlert && wizardAlert.classList.contains('show')) {
+        // Wait exactly 5 seconds, then strip the 'show' class to let CSS fade it out smoothly
+        setTimeout(() => {
+          wizardAlert.classList.remove('show');
+        }, 5000);
+      }
+    });
+  </script>
 </body>
 </html>

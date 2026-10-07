@@ -10,9 +10,9 @@
       <button class="picker-btn" id="increaseBtn" onclick="adjustCount(1)">+</button>
     </div>
     <button class="generate-btn" onclick="generateRows()">Generate</button>
-    <div class="template-controls">
-      <button class="picker-btn template-btn" onclick="exportParty()" title="Export Party Template">📤 Export</button>
-      <label class="picker-btn template-btn import-label" title="Import Party Template">
+    <div class="template-controls" style="margin-left: auto; display: flex; gap: 5px;">
+      <button class="picker-btn" style="width: auto; padding: 0 10px; font-size: 0.8em;" onclick="exportParty()" title="Export Party Template">📤 Export</button>
+      <label class="picker-btn" style="width: auto; padding: 0 10px; font-size: 0.8em; display: inline-flex; align-items: center; cursor: pointer;" title="Import Party Template">
         📥 Import <input type="file" id="importFile" style="display: none;" accept=".json" onchange="importParty(event)">
       </label>
     </div>
@@ -45,35 +45,6 @@
     overflow-x: hidden;
   }
 
-  .picker-bar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    background: linear-gradient(135deg, rgba(61,43,31,0.95) 0%, rgba(42,26,18,0.95) 100%);
-    border: 2px solid #5c3d28;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 12px;
-    color: var(--gold);
-  }
-
-  .template-controls {
-    margin-left: auto;
-    display: flex;
-    gap: 5px;
-  }
-
-  .template-btn, .import-label {
-    width: auto;
-    padding: 6px 12px;
-    font-size: 0.85em;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
   .combatant-row {
     display: grid;
     grid-template-columns: 30px 1fr 100px 220px 60px;
@@ -102,47 +73,25 @@
 
   /* Mobile Responsive Fixes */
   @media (max-width: 600px) {
-    .picker-bar {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 8px;
-    }
-
-    .template-controls {
-      margin-left: 0 !important;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .template-btn, .import-label {
-      width: 100%;
-      padding: 8px;
-    }
-
     .combatant-row {
       grid-template-columns: 30px 1fr 80px;
       grid-template-rows: auto auto;
       gap: 5px;
       padding: 8px;
     }
-    
     .hp-controls {
       grid-column: 1 / -1;
       justify-content: center;
       border-top: 1px solid #5c3d28;
       padding-top: 8px;
     }
-    
     .skull-btn {
       grid-column: 3;
       justify-self: end;
     }
-    
     .hp-setup { min-width: 60px !important; }
 
-    /* Stack action buttons cleanly on mobile */
+    /* Stack action buttons and import/export controls cleanly on mobile */
     .action-bar, .button-group {
       display: flex;
       flex-direction: column;
@@ -349,7 +298,6 @@
         importedData.forEach((data, index) => {
           if (rows[index]) {
             rows[index].querySelector('.name-input').value = data.name || '';
-            rows[index].querySelector('.init-index').value = data.init || ''; // note: init-input
             rows[index].querySelector('.init-input').value = data.init || '';
             rows[index].querySelector('.hp-setup').value = data.hp || '';
           }
